@@ -64,7 +64,7 @@ export class CommandManager {
                                     );
                                 }
 
-                                // TODO: Use CommandArgument class
+                                // TODO: Use CommandArgument class.
                             });
 
                             if (errorMsgs.length != 0) {
