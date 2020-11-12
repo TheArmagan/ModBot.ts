@@ -5,7 +5,7 @@ import { HelpCommand } from "./commands/HelpCommand";
 import { Message } from "discord.js";
 import { GetPermLevelCommand } from "./commands/GetPermLevelCommand";
 import { AliasesCommand } from "./commands/AliasesCommand";
-import { ICommandArg } from "./Argument/ICommandArgument";
+import { ICommandArgument } from "./Argument/ICommandArgument";
 import { Utils } from "../utils/Utils";
 
 export class CommandManager {
@@ -57,21 +57,22 @@ export class CommandManager {
                     if (permissionInfo.permissionLevel >= cmd.permissionLevel || permissionInfo.permissionLevel == -1) {
                         if (cmd.args.length != 0) {
                             let errorMsgs: string[] = [];
-                            cmd.args.forEach((cmdArg: ICommandArg, index: number) => {
+                            cmd.args.forEach((cmdArg: ICommandArgument, index: number) => {
                                 if (cmdArg.required && typeof args[index] == "undefined") {
                                     return errorMsgs.push(
                                         `Argument \`${index}\` with type \`${cmdArg.type}\` is **required**.`
                                     );
                                 }
 
-                                try {
-                                    let parsedArg = Utils.tryToParseTypeStrict(args[index], [cmdArg.type]);
-                                    cmd.args[index] = parsedArg;
-                                }
+                                // TODO: Use CommandArgument class
                             });
-                        } else {
-                            cmd.onMessage(msg, this.#client, { permissionInfo, args });
+
+                            if (errorMsgs.length != 0) {
+                                return msg.reply(`Some errors happened:\n\n${errorMsgs.join("\n")}`, { code: true });
+                            }
                         }
+
+                        cmd.onMessage(msg, this.#client, { permissionInfo, args });
                     } else {
                         msg.reply("Your permission level doesn't allows you to use that command!");
                     }

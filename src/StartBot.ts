@@ -3,8 +3,6 @@ import { ModBot } from "./ModBot";
 
 dotenv.config();
 
-process.env.BOT_TOKEN = "Nzc0NjU4MTg0ODQ0NjczMDM0.X6a-pw.9J-6ulOkwnRpd2Oh14YkKa-XJGA";
-
 const modBot = new ModBot({
     clientToken: process.env.BOT_TOKEN as string,
     botAdmins: [
