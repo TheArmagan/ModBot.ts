@@ -5,6 +5,8 @@ import { HelpCommand } from "./commands/HelpCommand";
 import { Message } from "discord.js";
 import { GetPermLevelCommand } from "./commands/GetPermLevelCommand";
 import { AliasesCommand } from "./commands/AliasesCommand";
+import { ICommandArg } from "./Argument/ICommandArgument";
+import { Utils } from "../utils/Utils";
 
 export class CommandManager {
     #commands: Map<string, Command> = new Map<string, Command>();
@@ -29,7 +31,7 @@ export class CommandManager {
             this.#commands.set(command.name, command);
             command.onLoad(this.#client);
         } else {
-            throw "This command already loaded!";
+            throw `This command already loaded! (${command.name})`;
         }
     }
 
@@ -41,17 +43,38 @@ export class CommandManager {
                 .calculatePermissionInfo(msg.author, msg?.member || undefined);
 
             let args = msg.content.split(" ");
+            let prefixArg: string = args.shift() ? (args.shift() as string) : "";
 
             this.#commands.forEach((cmd: Command) => {
                 if (
                     [cmd.name, ...cmd.aliases].some((cmdAlias) => {
                         return (
                             msg.content.startsWith(botPrefix) &&
-                            cmdAlias.toLowerCase() == args[0].slice(botPrefix.length).toLowerCase()
+                            cmdAlias.toLowerCase() == prefixArg.slice(botPrefix.length).toLowerCase()
                         );
                     })
                 ) {
-                    cmd.onMessage(msg, this.#client, { permissionInfo, args });
+                    if (permissionInfo.permissionLevel >= cmd.permissionLevel || permissionInfo.permissionLevel == -1) {
+                        if (cmd.args.length != 0) {
+                            let errorMsgs: string[] = [];
+                            cmd.args.forEach((cmdArg: ICommandArg, index: number) => {
+                                if (cmdArg.required && typeof args[index] == "undefined") {
+                                    return errorMsgs.push(
+                                        `Argument \`${index}\` with type \`${cmdArg.type}\` is **required**.`
+                                    );
+                                }
+
+                                try {
+                                    let parsedArg = Utils.tryToParseTypeStrict(args[index], [cmdArg.type]);
+                                    cmd.args[index] = parsedArg;
+                                }
+                            });
+                        } else {
+                            cmd.onMessage(msg, this.#client, { permissionInfo, args });
+                        }
+                    } else {
+                        msg.reply("Your permission level doesn't allows you to use that command!");
+                    }
                 }
             });
         });

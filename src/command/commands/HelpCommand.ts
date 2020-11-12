@@ -8,7 +8,7 @@ export class HelpCommand extends Command {
         super({
             name: "help",
             description: "Command list.",
-            args: ["[string]"]
+            args: []
         });
     }
 
@@ -50,7 +50,9 @@ export class HelpCommand extends Command {
 
                 ${commands
                     .map(([, cmd]) => {
-                        return `${client.getBotPrefix()}${cmd.name}${cmd.description ? " - " + cmd.description : ""}`;
+                        return `${client.getBotPrefix()}${cmd.name}${cmd?.args ? " " + cmd.args.join(" ") : ""} ${
+                            cmd.description ? " - " + cmd.description : ""
+                        }`;
                     })
                     .join("\n")}
                 `.replace("                ", ""),

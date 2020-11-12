@@ -1,5 +1,6 @@
 import { Message } from "discord.js";
 import { ModBot } from "../ModBot";
+import { ICommandArgs } from "./Argument/ICommandArgument";
 import { IOtherInfo } from "./IOtherInfo";
 
 interface CommandProps {
@@ -7,7 +8,7 @@ interface CommandProps {
     description?: string;
     aliases?: string[];
     permissionLevel?: number;
-    args?: string[];
+    args?: Array<ICommandArgs>;
 }
 
 export class Command {
@@ -15,7 +16,7 @@ export class Command {
     description: string;
     permissionLevel: number;
     aliases: string[];
-    args: string[];
+    args: Array<ICommandArgs>;
     fileLocation: string;
 
     constructor({ name, description = "", aliases = [], permissionLevel = 0, args = [] }: CommandProps) {
